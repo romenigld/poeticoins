@@ -18,9 +18,10 @@ defmodule Poeticoins.Exchanges.CoinbaseClient do
     {:noreply, connect(state)}
   end
 
-  # def server_host, do: 'ws-feed.pro.coinbase.com'
+  # def server_host_pro, do: 'ws-feed.pro.coinbase.com'
   def server_host, do: 'ws-feed.exchange.coinbase.com'
   def server_port, do: 443
+  # def server_opts_http, do: %{protocols: [:http]}
   def server_opts do
     %{
       protocols: [:http],
