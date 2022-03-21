@@ -12,7 +12,7 @@ defmodule Poeticoins.Exchanges.Client do
   @callback server_host()                     :: list()
   @callback server_port()                     :: integer()
   @callback subscription_frames([String.t()]) :: [{:text, String.t()}]
-  @callback handle_ws_message(map(), t())   :: any()
+  @callback handle_ws_message(map(), t())     :: any()
 
   defstruct [:module, :conn, :conn_ref, :currency_pairs]
   def start_link(module, currency_pairs, options \\ []) do
