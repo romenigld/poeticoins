@@ -2,19 +2,20 @@ defmodule Poeticoins.Exchanges.Client do
   use GenServer
 
   @type t :: %__MODULE__{
-    module: module(),
-    conn: pid(),
-    conn_ref: reference(),
-    currency_pairs: [String.t()]
-  }
+          module: module(),
+          conn: pid(),
+          conn_ref: reference(),
+          currency_pairs: [String.t()]
+        }
 
-  @callback exchange_name()                   :: String.t()
-  @callback server_host()                     :: list()
-  @callback server_port()                     :: integer()
+  @callback exchange_name() :: String.t()
+  @callback server_host() :: list()
+  @callback server_port() :: integer()
   @callback subscription_frames([String.t()]) :: [{:text, String.t()}]
-  @callback handle_ws_message(map(), t())     :: any()
+  @callback handle_ws_message(map(), t()) :: any()
 
   defstruct [:module, :conn, :conn_ref, :currency_pairs]
+
   def start_link(module, currency_pairs, options \\ []) do
     GenServer.start_link(__MODULE__, {module, currency_pairs}, options)
   end
@@ -47,14 +48,18 @@ defmodule Poeticoins.Exchanges.Client do
     {:noreply, client}
   end
 
-  def handle_info({:gun_upgrade, conn, _ref, ["websocket"], _headers},
-                  %{conn: conn} = client) do
+  def handle_info(
+        {:gun_upgrade, conn, _ref, ["websocket"], _headers},
+        %{conn: conn} = client
+      ) do
     subscribe(client)
     {:noreply, client}
   end
 
-  def handle_info({:gun_ws, conn, _ref, {:text, msg} = _frame},
-                  %{conn: conn} = client) do
+  def handle_info(
+        {:gun_ws, conn, _ref, {:text, msg} = _frame},
+        %{conn: conn} = client
+      ) do
     handle_ws_message(Jason.decode!(msg), client)
   end
 
@@ -83,6 +88,7 @@ defmodule Poeticoins.Exchanges.Client do
   defp subscribe(client) do
     subscription_frames(client.module, client.currency_pairs)
     |> Enum.each(&:gun.ws_send(client.conn, &1))
+
     # |> Enum.each(fn frame -> :gun.ws_send(state.conn, frame))
   end
 
@@ -99,7 +105,8 @@ defmodule Poeticoins.Exchanges.Client do
   def validate_required(msg, keys) do
     required_key = Enum.find(keys, fn k -> is_nil(msg[k]) end)
 
-    if is_nil(required_key), do: :ok,
-    else: {:error, {required_key, :required}}
+    if is_nil(required_key),
+      do: :ok,
+      else: {:error, {required_key, :required}}
   end
 end
