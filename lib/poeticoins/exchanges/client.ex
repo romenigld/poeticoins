@@ -8,11 +8,11 @@ defmodule Poeticoins.Exchanges.Client do
           currency_pairs: [String.t()]
         }
 
-  @callback exchange_name() :: String.t()
-  @callback server_host() :: list()
-  @callback server_port() :: integer()
+  @callback exchange_name()                   :: String.t()
+  @callback server_host()                     :: list()
+  @callback server_port()                     :: integer()
   @callback subscription_frames([String.t()]) :: [{:text, String.t()}]
-  @callback handle_ws_message(map(), t()) :: any()
+  @callback handle_ws_message(map(), t())     :: any()
 
   defstruct [:module, :conn, :conn_ref, :currency_pairs]
 
