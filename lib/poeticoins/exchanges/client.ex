@@ -16,6 +16,32 @@ defmodule Poeticoins.Exchanges.Client do
 
   defstruct [:module, :conn, :conn_ref, :currency_pairs]
 
+  defmacro defclient(options) do
+    exchange_name = Keyword.fetch!(options, :exchange_name)
+    host = Keyword.fetch!(options, :host)
+    port = Keyword.fetch!(options, :port)
+    currency_pairs = Keyword.fetch!(options, :currency_pairs)
+
+    quote do
+      @behaviour unquote(__MODULE__)
+      import unquote(__MODULE__), only: [validate_required: 2]
+      require Logger
+
+      def exchange_name, do: unquote(exchange_name)
+      def server_host, do: unquote(host)
+      def server_port, do: unquote(port)
+      def available_currency_pairs, do: unquote(currency_pairs)
+
+      def handle_ws_message(msg, client) do
+        Logger.debug("handle_ws_message: #{inspect(msg)}")
+
+        {:noreply, client}
+      end
+
+      defoverridable [handle_ws_message: 2]
+    end
+  end
+
   def start_link(module, currency_pairs, options \\ []) do
     GenServer.start_link(__MODULE__, {module, currency_pairs}, options)
   end
@@ -36,7 +62,7 @@ defmodule Poeticoins.Exchanges.Client do
   def connect(client) do
     host = server_host(client.module)
     port = server_port(client.module)
-    server_opts()
+
     {:ok, conn} = :gun.open(host, port, server_opts())
     conn_ref = Process.monitor(conn)
 
@@ -65,8 +91,8 @@ defmodule Poeticoins.Exchanges.Client do
 
   defp server_host(module) do
     module.server_host()
-    # or can use the &apply/3 function
-    # apply(module, :server_host, [])
+  # or can use the &apply/3 function
+  # apply(module, :server_host, [])
   end
 
   defp server_port(module), do: module.server_port()
@@ -88,8 +114,7 @@ defmodule Poeticoins.Exchanges.Client do
   defp subscribe(client) do
     subscription_frames(client.module, client.currency_pairs)
     |> Enum.each(&:gun.ws_send(client.conn, &1))
-
-    # |> Enum.each(fn frame -> :gun.ws_send(state.conn, frame))
+  # |> Enum.each(fn frame -> :gun.ws_send(state.conn, frame))
   end
 
   defp subscription_frames(module, currency_pairs) do

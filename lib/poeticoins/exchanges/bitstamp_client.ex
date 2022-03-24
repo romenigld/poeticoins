@@ -1,86 +1,16 @@
 defmodule Poeticoins.Exchanges.BitstampClient do
-  use GenServer
   alias Poeticoins.{Trade, Product}
+  alias Poeticoins.Exchanges.Client
+  require Client
 
-  @exchange_name "bitstamp"
+  Client.defclient exchange_name: "bitstamp",
+                   host: 'ws.bitstamp.net',
+                   port: 443,
+                   currency_pairs: ["btcusd", "ethusd", "ltcusd",
+                                    "btceur", "etheur", "ltceur"]
 
-  def start_link(currency_pairs, options \\ []) do
-    GenServer.start_link(__MODULE__, currency_pairs, options)
-  end
-
-  def init(currency_pairs) do
-    state = %{
-      currency_pairs: currency_pairs,
-      conn: nil
-    }
-
-    {:ok, state, {:continue, :connect}}
-  end
-
-  def handle_continue(:connect, state) do
-    {:noreply, connect(state)}
-  end
-
-  def server_host, do: 'ws.bitstamp.net'
-  def server_port, do: 443
-
-  def server_opts do
-    %{
-      protocols: [:http],
-      transport: :tls,
-      transport_opts: [
-        verify: :verify_peer,
-        cacertfile: :certifi.cacertfile(),
-        customize_hostname_check: [
-          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-        ]
-      ]
-    }
-  end
-
-  def connect(state) do
-    {:ok, conn} = :gun.open(server_host(), server_port(), server_opts())
-    %{state | conn: conn}
-  end
-
-  def handle_info({:gun_up, conn, :http}, %{conn: conn} = state) do
-    :gun.ws_upgrade(conn, "/")
-    {:noreply, state}
-  end
-
-  def handle_info(
-        {:gun_upgrade, conn, _ref, ["websocket"], _headers},
-        %{conn: conn} = state
-      ) do
-    subscribe(state)
-    {:noreply, state}
-  end
-
-  def handle_info(
-        {:gun_ws, conn, _ref, {:text, msg} = _frame},
-        %{conn: conn} = state
-      ) do
-    handle_ws_message(Jason.decode!(msg), state)
-  end
-
-  def handle_ws_message(%{"event" => "trade"} = msg, state) do
-    _trade = message_to_trade(msg) |> IO.inspect(label: "trade")
-    {:noreply, state}
-  end
-
-  def handle_ws_message(msg, state) do
-    IO.inspect(msg, label: "unhandled message")
-    {:noreply, state}
-  end
-
-  defp subscribe(state) do
-    subscription_frames(state.currency_pairs)
-    |> Enum.each(&:gun.ws_send(state.conn, &1))
-
-    # |> Enum.each(fn frame -> :gun.ws_send(state.conn, frame))
-  end
-
-  defp subscription_frames(currency_pairs) do
+  @impl true
+  def subscription_frames(currency_pairs) do
     Enum.map(currency_pairs, &subscription_frame/1)
   end
 
@@ -97,13 +27,24 @@ defmodule Poeticoins.Exchanges.BitstampClient do
     {:text, msg}
   end
 
+  @impl true
+  def handle_ws_message(%{"event" => "trade"} = msg, state) do
+    _trade = message_to_trade(msg) |> IO.inspect(label: "bitstamp")
+    {:noreply, state}
+  end
+
+  def handle_ws_message(msg, state) do
+    IO.inspect(msg, label: "unhandled message")
+    {:noreply, state}
+  end
+
   @spec message_to_trade(map()) :: {:ok, Trade.t()} | {:error, any()}
   def message_to_trade(%{"data" => data, "channel" => "live_trades_" <> currency_pair} = _msg)
       when is_map(data) do
     with :ok <- validate_required(data, ["amount_str", "price_str", "timestamp"]),
          {:ok, traded_at} <- timestamp_to_datetime(data["timestamp"]) do
       Trade.new(
-        product: Product.new(@exchange_name, currency_pair),
+        product: Product.new(exchange_name(), currency_pair),
         price: data["price_str"],
         volume: data["amount_str"],
         traded_at: traded_at
@@ -124,14 +65,5 @@ defmodule Poeticoins.Exchanges.BitstampClient do
       :error ->
         {:error, :invalid_timestamp_string}
     end
-  end
-
-  @spec validate_required(map(), [String.t()]) :: :ok | {:error, {String.t(), :required}}
-  def validate_required(msg, keys) do
-    required_key = Enum.find(keys, fn k -> is_nil(msg[k]) end)
-
-    if is_nil(required_key),
-      do: :ok,
-      else: {:error, {required_key, :required}}
   end
 end
