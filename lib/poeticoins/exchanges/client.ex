@@ -8,11 +8,11 @@ defmodule Poeticoins.Exchanges.Client do
           currency_pairs: [String.t()]
         }
 
-  @callback exchange_name()                   :: String.t()
-  @callback server_host()                     :: list()
-  @callback server_port()                     :: integer()
+  @callback exchange_name() :: String.t()
+  @callback server_host() :: list()
+  @callback server_port() :: integer()
   @callback subscription_frames([String.t()]) :: [{:text, String.t()}]
-  @callback handle_ws_message(map(), t())     :: any()
+  @callback handle_ws_message(map(), t()) :: any()
 
   defstruct [:module, :conn, :conn_ref, :currency_pairs]
 
@@ -38,7 +38,7 @@ defmodule Poeticoins.Exchanges.Client do
         {:noreply, client}
       end
 
-      defoverridable [handle_ws_message: 2]
+      defoverridable handle_ws_message: 2
     end
   end
 
@@ -91,8 +91,8 @@ defmodule Poeticoins.Exchanges.Client do
 
   defp server_host(module) do
     module.server_host()
-  # or can use the &apply/3 function
-  # apply(module, :server_host, [])
+    # or can use the &apply/3 function
+    # apply(module, :server_host, [])
   end
 
   defp server_port(module), do: module.server_port()
@@ -114,7 +114,8 @@ defmodule Poeticoins.Exchanges.Client do
   defp subscribe(client) do
     subscription_frames(client.module, client.currency_pairs)
     |> Enum.each(&:gun.ws_send(client.conn, &1))
-  # |> Enum.each(fn frame -> :gun.ws_send(state.conn, frame))
+
+    # |> Enum.each(fn frame -> :gun.ws_send(state.conn, frame))
   end
 
   defp subscription_frames(module, currency_pairs) do

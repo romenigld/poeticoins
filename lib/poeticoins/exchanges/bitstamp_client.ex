@@ -3,11 +3,12 @@ defmodule Poeticoins.Exchanges.BitstampClient do
   alias Poeticoins.Exchanges.Client
   require Client
 
-  Client.defclient exchange_name: "bitstamp",
-                   host: 'ws.bitstamp.net',
-                   port: 443,
-                   currency_pairs: ["btcusd", "ethusd", "ltcusd",
-                                    "btceur", "etheur", "ltceur"]
+  Client.defclient(
+    exchange_name: "bitstamp",
+    host: 'ws.bitstamp.net',
+    port: 443,
+    currency_pairs: ["btcusd", "ethusd", "ltcusd", "btceur", "etheur", "ltceur"]
+  )
 
   @impl true
   def subscription_frames(currency_pairs) do
@@ -45,15 +46,13 @@ defmodule Poeticoins.Exchanges.BitstampClient do
       when is_map(data) do
     with :ok <- validate_required(data, ["amount_str", "price_str", "timestamp"]),
          {:ok, traded_at} <- timestamp_to_datetime(data["timestamp"]) do
-
       {:ok,
-        Trade.new(
-          product: Product.new(exchange_name(), currency_pair),
-          price: data["price_str"],
-          volume: data["amount_str"],
-          traded_at: traded_at
-        )
-      }
+       Trade.new(
+         product: Product.new(exchange_name(), currency_pair),
+         price: data["price_str"],
+         volume: data["amount_str"],
+         traded_at: traded_at
+       )}
     else
       {:error, _reason} = error -> error
     end

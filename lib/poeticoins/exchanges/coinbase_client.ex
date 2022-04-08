@@ -3,11 +3,12 @@ defmodule Poeticoins.Exchanges.CoinbaseClient do
   alias Poeticoins.Exchanges.Client
   require Client
 
-  Client.defclient exchange_name: "coinbase",
-                   host: 'ws-feed.exchange.coinbase.com',
-                   port: 443,
-                   currency_pairs: ["BTC-USD", "ETH-USD", "LTC-USD",
-                                    "BTC-EUR", "ETH-EUR", "LTC-EUR"]
+  Client.defclient(
+    exchange_name: "coinbase",
+    host: 'ws-feed.exchange.coinbase.com',
+    port: 443,
+    currency_pairs: ["BTC-USD", "ETH-USD", "LTC-USD", "BTC-EUR", "ETH-EUR", "LTC-EUR"]
+  )
 
   @impl true
   def subscription_frames(currency_pairs) do
@@ -42,13 +43,12 @@ defmodule Poeticoins.Exchanges.CoinbaseClient do
       currency_pair = msg["product_id"]
 
       {:ok,
-        Trade.new(
-          product: Product.new(exchange_name(), currency_pair),
-          price: msg["price"],
-          volume: msg["last_size"],
-          traded_at: traded_at
-        )
-      }
+       Trade.new(
+         product: Product.new(exchange_name(), currency_pair),
+         price: msg["price"],
+         volume: msg["last_size"],
+         traded_at: traded_at
+       )}
     else
       {:error, _reason} = error -> error
     end
