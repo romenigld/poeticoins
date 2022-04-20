@@ -10,6 +10,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :poeticoins, PoeticoinsWeb.Endpoint,
+  url: [host: "rld-poeticoins-app.gigalixirapp.com", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
@@ -20,10 +21,9 @@ config :logger, level: :info
 # To get SSL working, you will need to add the `https` key
 # to the previous section and set your `:url` port to 443:
 #
-#     config :poeticoins, PoeticoinsWeb.Endpoint,
-#       ...,
-#       url: [host: "example.com", port: 443],
-#       https: [
+    # config :poeticoins, PoeticoinsWeb.Endpoint,
+    #   url: [host: "rld-poeticoins-app.gigalixirapp.com", port: 80],
+    #   https: [
 #         ...,
 #         port: 443,
 #         cipher_suite: :strong,
