@@ -1,7 +1,7 @@
 import Config
 
 config :poeticoins, PoeticoinsWeb.Endpoint,
-  url: [host: "rld-poeticoins-app.gigalixirapp.com", port: 80],
+  url: [host: "rld-poeticoins-app.gigalixirapp.com", port: 443],
   check_origin: ["//rld-poeticoins-app.gigalixirapp.com"],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
