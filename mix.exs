@@ -49,7 +49,9 @@ defmodule Poeticoins.MixProject do
       {:gun, "~> 1.3"},
       {:cowlib, "~> 2.11.0", override: true},
       {:certifi, "~> 2.8"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+
+      {:dart_sass, "~> 0.4", runtime: Mix.env() == :dev}
     ]
   end
 
@@ -62,7 +64,11 @@ defmodule Poeticoins.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      "assets.deploy": [
+        "esbuild default --minify",
+        "sass default --no-source-map --style=compressed",
+        "phx.digest"
+      ]
     ]
   end
 end
