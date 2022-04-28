@@ -1,12 +1,8 @@
 defmodule PoeticoinsWeb.ProductHelpers do
   alias PoeticoinsWeb.Router.Helpers, as: Routes
 
-  def fiat_symbols do
-    ["eur", "usd"]
-  end
-
   def human_datetime(datetime) do
-    Calendar.strftime(datetime, "%b %d, %Y  %H:%M:%S")
+    Calendar.strftime(datetime, "%b %d, %Y   %H:%M:%S")
   end
 
   def crypto_icon(conn, product) do
@@ -30,9 +26,15 @@ defmodule PoeticoinsWeb.ProductHelpers do
     end
   end
 
-  def crypto_symbol(product), do: crypto_and_fiat_symbols(product).crypto_symbol
+  def crypto_symbol(product),
+    do: crypto_and_fiat_symbols(product).crypto_symbol
 
-  def fiat_symbol(product), do: crypto_and_fiat_symbols(product).fiat_symbol
+  def fiat_symbol(product),
+    do: crypto_and_fiat_symbols(product).fiat_symbol
+
+  def fiat_symbols do
+    ["eur", "usd"]
+  end
 
   defp crypto_and_fiat_symbols(%{exchange_name: "coinbase"} = product) do
     [crypto_symbol, fiat_symbol] =
