@@ -59,4 +59,9 @@ defmodule PoeticoinsWeb.CryptoDashboardLive do
       |> put_flash(:error, "The product was already added!")
     end
   end
+
+  defp grouped_products_by_exchange_name do
+    Poeticoins.available_products()
+    |> Enum.group_by(& &1.exchange_name)
+  end
 end
