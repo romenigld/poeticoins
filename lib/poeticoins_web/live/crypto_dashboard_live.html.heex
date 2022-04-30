@@ -23,7 +23,7 @@
 </div>
 
 <div class="product-components">
-  <%= for product <- @products, trade = @trades[product], not is_nil(trade) do %>
-    <%= live_component(PoeticoinsWeb.ProductComponent, product: product, trade: trade) %>
+  <%= for product <- @products do %>
+    <%= live_component(PoeticoinsWeb.ProductComponent, id: product) %>
   <% end %>
 </div>
