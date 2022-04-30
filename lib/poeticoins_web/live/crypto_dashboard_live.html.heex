@@ -24,6 +24,6 @@
 
 <div class="product-components">
   <%= for product <- @products, trade = @trades[product], not is_nil(trade) do %>
-    <.live_component module={PoeticoinsWeb.ProductComponent} product={@product} trade={@trade} />
+    <%= live_component(PoeticoinsWeb.ProductComponent, product: product, trade: trade) %>
   <% end %>
 </div>
