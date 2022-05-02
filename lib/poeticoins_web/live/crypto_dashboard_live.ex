@@ -30,6 +30,7 @@ defmodule PoeticoinsWeb.CryptoDashboardLive do
 
   def handle_event("remove-product", %{"product-id" => product_id}= _params, socket) do
     product = product_from_string(product_id)
+    Poeticoins.unsubscribe_from_trades(product)
     socket = update(socket, :products, &List.delete(&1, product))
     {:noreply, socket}
   end
