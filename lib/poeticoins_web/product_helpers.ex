@@ -1,8 +1,10 @@
 defmodule PoeticoinsWeb.ProductHelpers do
   alias PoeticoinsWeb.Router.Helpers, as: Routes
 
-  def human_datetime(datetime) do
-    Calendar.strftime(datetime, "%b %d, %Y   %H:%M:%S")
+  def human_datetime(datetime, timezone \\ "UTC") do
+    datetime
+    |> DateTime.shift_zone!(timezone)
+    |> Calendar.strftime("%b %d, %Y   %H:%M:%S")
   end
 
   def crypto_icon(conn, product) do

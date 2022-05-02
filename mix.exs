@@ -51,7 +51,8 @@ defmodule Poeticoins.MixProject do
       {:certifi, "~> 2.8"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
 
-      {:dart_sass, "~> 0.4", runtime: Mix.env() == :dev}
+      {:dart_sass, "~> 0.4", runtime: Mix.env() == :dev},
+      {:tzdata, "~> 1.1"}
     ]
   end
 
