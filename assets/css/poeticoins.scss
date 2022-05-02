@@ -37,6 +37,7 @@ body {
   font-family: 'Nunito', sans-serif;
 }
 
+
 .dashboard-container {
   position: relative;
   width: 95%;
@@ -59,7 +60,7 @@ body {
   }
 }
 
-.product-components-container {
+.product-components {
   display: inline-flex;
   flex-flow: row wrap;
   // justify-content: flex-start;
