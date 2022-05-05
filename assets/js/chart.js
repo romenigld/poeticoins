@@ -2,12 +2,17 @@ import uPlot from "uplot"
 
 let ChartHook = {
   mounted() {
+    let productId = this.el.dataset.productId,
+      event = `new-trade:${productId}`
+      self = this
+
     this.trades = []
     this.plot = new uPlot(plotOptions(), [[], []], this.el)
+    this.handleEvent(event, (payload) => self.handleNewTrade(payload))
   },
-  updated() {
-    let price = parseFloat(this.el.dataset.price),
-      timestamp = parseInt(this.el.dataset.tradedAt)
+  handleNewTrade(trade) {
+    let price = parseFloat(trade.price),
+      timestamp = trade.traded_at
 
     this.trades.push({
       timestamp: timestamp, price: price

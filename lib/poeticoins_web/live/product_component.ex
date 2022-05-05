@@ -3,7 +3,14 @@ defmodule PoeticoinsWeb.ProductComponent do
   import PoeticoinsWeb.ProductHelpers
 
   def update(%{trade: trade}=_assigns, socket) when not is_nil(trade) do
-    socket = assign(socket, :trade, trade)
+    product_id = to_string(trade.product)
+    event_name = "new-trade:#{product_id}"
+
+    socket =
+      socket
+      |> assign(:trade, trade)
+      |> push_event(event_name, to_event(trade))
+
     {:ok, socket}
   end
   def update(assigns, socket) do
@@ -48,10 +55,9 @@ defmodule PoeticoinsWeb.ProductComponent do
 
       <div class="chart-component">
         <div phx-hook="Chart"
-          id={ "product-chart-#{to_string(@product)}" }
-          data-price={ @trade.price }
-          data-traded-at={ DateTime.to_unix(@trade.traded_at, :millisecond) }
-          phx-update="ignore"
+             id={ "product-chart-#{to_string(@product)}" }
+             data-product-id={ to_string(@product) }
+             phx-update="ignore"
         >
           <div class="chart-container"></div>
         </div>
@@ -104,5 +110,11 @@ defmodule PoeticoinsWeb.ProductComponent do
     """
   end
 
-
+  defp to_event(trade) do
+    %{
+      traded_at: DateTime.to_unix(trade.traded_at, :millisecond),
+      price: trade.price,
+      volume: trade.volume
+    }
+  end
 end
