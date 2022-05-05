@@ -48,12 +48,12 @@ defmodule PoeticoinsWeb.ProductComponent do
 
       <div class="chart-component">
         <div phx-hook="Chart"
-             id={ "product-chart-#{to_string(@product)}" }
-             data-price={ @trade.price }
-             data-traded-at={ DateTime.to_unix(@trade.traded_at, :millisecond) }
-             >
-          <div class="chart-container">
-          </div>
+          id={ "product-chart-#{to_string(@product)}" }
+          data-price={ @trade.price }
+          data-traded-at={ DateTime.to_unix(@trade.traded_at, :millisecond) }
+          phx-update="ignore"
+        >
+          <div class="chart-container"></div>
         </div>
       </div>
 

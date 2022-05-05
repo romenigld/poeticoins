@@ -47,7 +47,7 @@ config :phoenix, :json_library, Jason
 config :dart_sass,
   version: "1.49.11",
   default: [
-    args: ~w(css/app.scss ../priv/static/assets/app.css),
+    args: ~w(css/app.scss ../priv/static/assets/app.css --load-path=../assets/node_modules),
     cd: Path.expand("../assets", __DIR__)
   ]
 

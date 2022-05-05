@@ -1,5 +1,8 @@
 {
   "scripts": {
     "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild"
+  },
+  "dependencies": {
+    "uplot": "^1.6.20"
   }
 }
