@@ -10,25 +10,10 @@ defmodule PoeticoinsWeb.CryptoDashboardLive do
     {:ok, socket}
   end
 
-  def handle_params(%{"product_id" => product_id}=_params, _url, socket) do
-    product = product_from_string(product_id)
-    socket =
-      socket
-      |> assign(:selected_product, product)
-      |> maybe_update_title_with_trade(Poeticoins.get_last_trade(product))
-
-    {:noreply, socket}
-  end
-  def handle_params(_params, _url, socket), do: {:noreply, socket}
-
-
   def handle_info({:new_trade, trade}, socket) do
     send_update(PoeticoinsWeb.ProductComponent,
                 id: trade.product,
                 trade: trade)
-    socket =
-      socket
-      |> maybe_update_title_with_trade(trade)
 
     {:noreply, socket}
   end
@@ -99,11 +84,4 @@ defmodule PoeticoinsWeb.CryptoDashboardLive do
       _ -> "UTC"
     end
   end
-
-  defp maybe_update_title_with_trade(
-    %{assigns: %{selected_product: product}}=socket,
-    %{product: product}=trade) do
-    assign(socket, :page_title, "#{trade.price} - #{product.currency_pair}")
-  end
-  defp maybe_update_title_with_trade(socket, _trade), do: socket
 end
