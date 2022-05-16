@@ -33,9 +33,9 @@ defmodule PoeticoinsWeb.ProductComponent do
       <div class="currency-container">
         <img class="icon" src={crypto_icon(@socket, @product)} >
         <div class="crypto-name">
-          <%= live_redirect crypto_name(@product),
-              to: Routes.live_path(@socket, PoeticoinsWeb.ProductLive, to_string(@product))
-          %>
+          <a phx-target={ @myself } phx-click="show-product" phx-value-product-id={ to_string(@product) }>
+            <%= crypto_name(@product) %>
+          </a>
         </div>
       </div>
 
@@ -111,6 +111,13 @@ defmodule PoeticoinsWeb.ProductComponent do
       </div>
     </div>
     """
+  end
+
+  def handle_event("show-product", %{"product-id" => product_id}, socket) do
+    socket =
+      push_redirect(socket, to: Routes.live_path(socket, PoeticoinsWeb.ProductLive, product_id))
+
+    {:noreply, socket}
   end
 
   defp to_event(trade) do
