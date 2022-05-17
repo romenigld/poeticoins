@@ -26,9 +26,11 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import { ChartHook } from "./chart"
+import { StockChartHook } from "./stockchart"
 
 let Hooks = {
-  Chart: ChartHook
+  Chart: ChartHook,
+  StockChart: StockChartHook
 }
 
 let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
