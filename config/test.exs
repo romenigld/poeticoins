@@ -15,3 +15,9 @@ config :logger, level: :warn
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :poeticoins, :children, [
+  PoeticoinsWeb.Telemetry,
+  {Phoenix.PubSub, name: Poeticoins.PubSub},
+  PoeticoinsWeb.Endpoint
+]

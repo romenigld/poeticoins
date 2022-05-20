@@ -7,13 +7,7 @@ defmodule Poeticoins.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      PoeticoinsWeb.Telemetry,
-      {Phoenix.PubSub, name: Poeticoins.PubSub},
-      {Poeticoins.Historical, name: Poeticoins.Historical},
-      {Poeticoins.Exchanges.Supervisor, name: Poeticoins.Exchanges.Supervisor},
-      PoeticoinsWeb.Endpoint
-    ]
+    children = Application.get_env(:poeticoins, :children)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
