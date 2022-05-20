@@ -8,18 +8,11 @@ defmodule Poeticoins.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Telemetry supervisor
       PoeticoinsWeb.Telemetry,
-      # Start the PubSub system
       {Phoenix.PubSub, name: Poeticoins.PubSub},
-
       {Poeticoins.Historical, name: Poeticoins.Historical},
       {Poeticoins.Exchanges.Supervisor, name: Poeticoins.Exchanges.Supervisor},
-
-      # Start the Endpoint (http/https)
       PoeticoinsWeb.Endpoint
-      # Start a worker by calling: Poeticoins.Worker.start_link(arg)
-      # {Poeticoins.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

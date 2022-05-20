@@ -3,19 +3,39 @@ defmodule Poeticoins.Historical do
   alias Poeticoins.{Product, Trade, Exchanges}
 
   @type t() :: %__MODULE__{
-          products: [Product.t()],
-          trades: %{Product.t() => Trade.t()}
+          products: [Product.t()]
         }
-  defstruct [:products, :trades]
+  defstruct [:products]
 
-  @spec get_last_trade(pid() | atom(), Product.t()) :: Trade.t() | nil
-  def get_last_trade(pid \\ __MODULE__, product) do
-    GenServer.call(pid, {:get_last_trade, product})
+  @ets_table_name :historical
+
+  @spec get_last_trade(Product.t()) :: Trade.t() | nil
+  def get_last_trade(product) do
+    case :ets.lookup(@ets_table_name, product) do
+      [{^product, trade}] -> trade
+      [] -> nil
+    end
   end
 
-  @spec get_last_trades(pid() | atom(), [Product.t()]) :: [Trade.t() | nil]
-  def get_last_trades(pid \\ __MODULE__, products) do
-    GenServer.call(pid, {:get_last_trades, products})
+  @spec get_last_trades([Product.t()]) :: [Trade.t() | nil]
+  def get_last_trades(products) do
+    or_cond = Enum.reduce(products, {:or}, fn product, acc ->
+      Tuple.append(acc, {:"==", :"$1", product})
+    end)
+
+    match_spec = [
+        {
+          {:"$1", :"$2"},
+          [or_cond],
+          [:"$2"]
+        }
+      ]
+
+    :ets.select(@ets_table_name, match_spec)
+  end
+
+  def clear do
+    :ets.delete_all_objects(@ets_table_name)
   end
 
   # :products
@@ -25,7 +45,8 @@ defmodule Poeticoins.Historical do
   end
 
   def init(products) do
-    historical = %__MODULE__{products: products, trades: %{}}
+    :ets.new(@ets_table_name, [:set, :protected, :named_table])
+    historical = %__MODULE__{products: products}
     {:ok, historical, {:continue, :subscribe}}
   end
 
@@ -35,18 +56,7 @@ defmodule Poeticoins.Historical do
   end
 
   def handle_info({:new_trade, trade}, historical) do
-    updated_trades = Map.put(historical.trades, trade.product, trade)
-    updated_historical = %{historical | trades: updated_trades}
-    {:noreply, updated_historical}
-  end
-
-  def handle_call({:get_last_trade, product}, _from, historical) do
-    trade = Map.get(historical.trades, product)
-    {:reply, trade, historical}
-  end
-
-  def handle_call({:get_last_trades, products}, _from, historical) do
-    trades = Enum.map(products, &Map.get(historical.trades, &1))
-    {:reply, trades, historical}
+    :ets.insert(@ets_table_name, {trade.product, trade})
+    {:noreply, historical}
   end
 end
