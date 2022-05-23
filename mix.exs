@@ -50,9 +50,9 @@ defmodule Poeticoins.MixProject do
       {:cowlib, "~> 2.11.0", override: true},
       {:certifi, "~> 2.8"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-
       {:dart_sass, "~> 0.4", runtime: Mix.env() == :dev},
-      {:tzdata, "~> 1.1"}
+      {:tzdata, "~> 1.1"},
+      {:benchee, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
 
