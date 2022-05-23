@@ -2,6 +2,10 @@ defmodule PoeticoinsWeb.ProductComponent do
   use PoeticoinsWeb, :live_component
   import PoeticoinsWeb.ProductHelpers
 
+  def mount(socket) do
+    {:ok, socket, temporary_assigns: [init_trades: []]}
+  end
+
   def update(%{trade: trade}=_assigns, socket) when not is_nil(trade) do
     product_id = to_string(trade.product)
     event_name = "new-trade:#{product_id}"
@@ -15,10 +19,12 @@ defmodule PoeticoinsWeb.ProductComponent do
   end
   def update(assigns, socket) do
     product = assigns.id
+
     socket = assign(socket,
               product: product,
               trade: Poeticoins.get_last_trade(product),
-              timezone: assigns.timezone
+              timezone: assigns.timezone,
+              init_trades: Poeticoins.Historical.get_trades(product)
              )
 
     {:ok, socket}
@@ -58,6 +64,7 @@ defmodule PoeticoinsWeb.ProductComponent do
         <div phx-hook="Chart"
              id={ "product-chart-#{to_string(@product)}" }
              data-product-id={ to_string(@product) }
+             data-init-trades={ trades_to_chat_data(@init_trades) }
              phx-update="ignore"
         >
           <div class="chart-container"></div>
@@ -126,5 +133,11 @@ defmodule PoeticoinsWeb.ProductComponent do
       price: trade.price,
       volume: trade.volume
     }
+  end
+
+  def trades_to_chat_data(trades) do
+    trades
+    |> Enum.map(&to_event/1)
+    |> Jason.encode!()
   end
 end

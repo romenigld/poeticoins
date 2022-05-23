@@ -8,6 +8,9 @@ let ChartHook = {
 
     this.trades = []
     this.plot = new uPlot(plotOptions(), [[], []], this.el)
+    JSON.parse(this.el.dataset.initTrades).forEach(
+      trade => this.handleNewTrade(trade)
+    )
     this.handleEvent(event, (payload) => self.handleNewTrade(payload))
   },
   handleNewTrade(trade) {
